@@ -1,0 +1,30 @@
+resource "aws_launch_configuration" "app_lc" {
+  name          = "app_lc"
+  image_id     = "ami-0ebfd941bbafe70c6" # Update to the latest Amazon Linux 2 AMI for us-east-1
+  instance_type = "t2.micro"
+  security_groups = [aws_security_group.allow_http.id]
+  key_name      = "reactjs" # Replace with your key pair name
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_autoscaling_group" "app_asg" {
+  launch_configuration = aws_launch_configuration.app_lc.id
+  min_size            = 2
+  max_size            = 5
+  desired_capacity    = 2
+  vpc_zone_identifier = [aws_subnet.subnet_1.id, aws_subnet.subnet_2.id]
+
+  tag {
+    key                 = "Name"
+    value               = "AutoScaledApp"
+    propagate_at_launch = true
+  }
+
+  # Enable automatic public IP assignment
+  lifecycle {
+    create_before_destroy = true
+  }
+}

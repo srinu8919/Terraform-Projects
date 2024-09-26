@@ -1,0 +1,25 @@
+resource "aws_db_subnet_group" "default" {
+  name       = "my-db-subnet-group"
+  subnet_ids = [aws_subnet.subnet_1.id, aws_subnet.subnet_2.id]
+
+  tags = {
+    Name = "My DB subnet group"
+  }
+}
+
+resource "aws_db_instance" "default" {
+  identifier         = "mydbinstance"
+  engine             = "mysql"
+  engine_version     = "5.7"  # Change to a supported version
+  instance_class     = "db.t3.micro"  # Use a supported instance class
+  allocated_storage   = 20
+  username           = "admin"
+  password           = "password" # Change to a secure password
+  db_subnet_group_name = aws_db_subnet_group.default.name
+  vpc_security_group_ids = [aws_security_group.allow_http.id]
+  skip_final_snapshot = true
+
+  tags = {
+    Name = "mydbinstance"
+  }
+}
